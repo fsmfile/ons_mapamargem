@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizador de PDF</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        #top-bar {
+            width: 100%;
+            background-color: #007bff;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #download-button {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #0056b3;
+            transition: background-color 0.3s;
+        }
+
+        #download-button:hover {
+            background-color: #003f7f;
+        }
+
+        #pdf-viewer {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+    </style>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
 
@@ -43,7 +85,8 @@
                 downloadButton.href = decodeURIComponent(fullLink);
                 downloadButton.download = 'document.pdf';
                 downloadButton.textContent = 'Download PDF';
-                document.body.appendChild(downloadButton);
+                downloadButton.id = 'download-button';
+                document.getElementById('top-bar').appendChild(downloadButton);
             } else {
                 console.error('PDF link is missing');
             }
@@ -51,7 +94,10 @@
     </script>
 </head>
 <body>
-    <div id="pdf-viewer" style="width: 100%; height: 100vh;"></div>
+    <div id="top-bar">
+        <span style="color: #fff;">Visualizador de PDF</span>
+        <a id="download-button" href="#" style="display: none;">Download PDF</a>
+    </div>
+    <div id="pdf-viewer"></div>
 </body>
 </html>
-
