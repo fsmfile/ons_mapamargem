@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir Link</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+        
+        function abrirLink() {
+            const linkBase = "https://apps08.ons.org.br/ONS.Sintegre.Proxy/SiteSINtegre/GetFile";
+            const filename = "05-07-2024_092100/Infogr%C3%A1fico%20GT%20RS%202024.pdf"; // Substitua pelo nome do arquivo real
+            const pathname = "sites/8/42/67/Produtos/203/";
+            const fullLink = encodeURIComponent(`${linkBase}?filename=${filename}&pathname=${pathname}&inline=true`);
+
+            // Abrir nova janela com o link como parâmetro
+            window.open(`visualizar-pdf.html?fullLink=${fullLink}`, "_blank");
+        }
+    </script>
+</head>
+<body>
+    <button onclick="abrirLink()">Abrir Link da Ata</button>
+</body>
+</html>

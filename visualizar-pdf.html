@@ -10,7 +10,7 @@
 
         function carregarPDF(fullLink) {
             const pdfViewer = document.getElementById('pdf-viewer');
-            const loadingTask = pdfjsLib.getDocument(fullLink);
+            const loadingTask = pdfjsLib.getDocument(decodeURIComponent(fullLink));
             loadingTask.promise.then(function(pdf) {
                 pdf.getPage(1).then(function(page) {
                     const scale = 1.5;
