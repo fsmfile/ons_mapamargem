@@ -55,75 +55,106 @@
         .icon-button:hover {
             color: #ddd;
         }
+
+
+        #progress-bar-container {
+            width: 100%;
+            height: 5px;
+            background-color: #555;
+            position: fixed;
+            top: 60px; /* Ajuste conforme necessário */
+            left: 0;
+            z-index: 1001;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+        }
+
     </style>
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
 
-        let pdfDoc = null;
-        let scale = 1.5;
-        let fullLink = '';
+let pdfDoc = null;
+let scale = 1.5;
+let fullLink = '';
 
-        function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: scale });
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+function renderPage(pageNum) {
+    pdfDoc.getPage(pageNum).then(function(page) {
+        const viewport = page.getViewport({ scale: scale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-
-                const pdfViewer = document.getElementById('pdf-viewer');
-                pdfViewer.appendChild(canvas);
-            });
-        }
-
-        function carregarPDF(link) {
-            fullLink = link;
-            const pdfViewer = document.getElementById('pdf-viewer');
-            pdfViewer.innerHTML = ''; // Clear previous canvases
-            const loadingTask = pdfjsLib.getDocument(decodeURIComponent(fullLink));
-            loadingTask.promise.then(function(pdf) {
-                pdfDoc = pdf;
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    renderPage(pageNum);
-                }
-            }, function(reason) {
-                console.error(reason);
-            });
-        }
-
-        function zoomIn() {
-            scale += 0.1;
-            carregarPDF(fullLink);
-        }
-
-        function zoomOut() {
-            if (scale > 0.5) {
-                scale -= 0.1;
-                carregarPDF(fullLink);
-            }
-        }
-
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const link = urlParams.get('fullLink');
-            if (link) {
-                carregarPDF(link);
-                const downloadButton = document.createElement('a');
-                downloadButton.href = decodeURIComponent(link);
-                downloadButton.download = 'document.pdf';
-                downloadButton.className = 'icon-button';
-                downloadButton.innerHTML = '<span class="material-symbols-outlined">download</span>';
-                document.getElementById('top-bar').appendChild(downloadButton);
-            } else {
-                console.error('PDF link is missing');
-            }
+        const renderContext = {
+            canvasContext: context,
+            viewport: viewport
         };
+        page.render(renderContext);
+
+        const pdfViewer = document.getElementById('pdf-viewer');
+        pdfViewer.appendChild(canvas);
+    });
+}
+
+function carregarPDF(link) {
+    fullLink = link;
+    const pdfViewer = document.getElementById('pdf-viewer');
+    pdfViewer.innerHTML = ''; // Clear previous canvases
+    const loadingTask = pdfjsLib.getDocument(decodeURIComponent(fullLink));
+
+    loadingTask.onProgress = function(progressData) {
+        const percentLoaded = (progressData.loaded / progressData.total) * 100;
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = percentLoaded + '%';
+    };
+
+    loadingTask.promise.then(function(pdf) {
+        pdfDoc = pdf;
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+            progressBar.style.display = 'none';
+        }, 200);
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            renderPage(pageNum);
+        }
+    }, function(reason) {
+        console.error(reason);
+    });
+}
+
+function zoomIn() {
+    scale += 0.1;
+    carregarPDF(fullLink);
+}
+
+function zoomOut() {
+    if (scale > 0.5) {
+        scale -= 0.1;
+        carregarPDF(fullLink);
+    }
+}
+
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const link = urlParams.get('fullLink');
+    if (link) {
+        carregarPDF(link);
+        const downloadButton = document.createElement('a');
+        downloadButton.href = decodeURIComponent(link);
+        downloadButton.download = 'document.pdf';
+        downloadButton.className = 'icon-button';
+        downloadButton.innerHTML = '<span class="material-symbols-outlined">download</span>';
+        document.getElementById('top-bar').appendChild(downloadButton);
+    } else {
+        console.error('PDF link is missing');
+    }
+};
+
     </script>
 </head>
 <body>
@@ -140,6 +171,9 @@
                 <span class="material-symbols-outlined">download</span>
             </a>
         </div>
+    </div>
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
     </div>
     <div id="pdf-viewer"></div>
 </body>
